@@ -1,6 +1,6 @@
 import subprocess
 import PySimpleGUI as sg
-from PySimpleGUI.PySimpleGUI import WIN_CLOSED, Window
+import sys
 
 
 class UI():
@@ -46,65 +46,66 @@ class UI():
         self.activeWindow = sg.Window(self.appName, self.layout)
     # app state and events handler
 
-    def loadargs(self):
-        self.currentData = []
-        if not self.event == 'Cancel' or sg.WIN_CLOSED:
-            self.event, self.values = self.activeWindow.read()
-            self.currentData = self.buttonFunction(self.event)
-            if self.currentData:
-                print('current command: ', ' '.join(self.currentData))
-        elif self.event == WIN_CLOSED or 'Cancel':
-                self.activeWindow.close()    
-    # button functions
+    def test(self):
+            self.currentData = []
+            while not self.event == 'Cancel':
+                self.event, self.values = self.activeWindow.read()
+                self.currentData = self.buttonFunction(self.event)
+                if self.currentData:
+                    print('current command: ', ' '.join(self.currentData))
+            self.activeWindow.close()
+        # button functions
 
     def buttonFunction(self, button):
-        if button:
+        try:
             argList = ['youtube-dl', '-i', '-h', '--yes-playlist',
                     self.values['url'], self.event, self.currentData,
                     '--version', '--write-auto-sub', '--skip-download', '--sub-format best']
             eventButtons = {'Confirm URL': [argList[0], argList[1], argList[3], argList[4]],
-                        'Clear URL': '',
-                        'download': argList[6],
-                        'help': [argList[0], argList[2]],
-                        'Cancel': argList[5],
-                        'Version checker': [argList[0], argList[7]],
-                        'auto Gen subtitles': [argList[0], argList[8], argList[4], argList[9]],
-                        }
+                            'Clear URL': '',
+                            'download': argList[6],
+                            'help': [argList[0], argList[2]],
+                            'Cancel': argList[5],
+                            'Version checker': [argList[0], argList[7]],
+                            'auto Gen subtitles': [argList[0], argList[8], argList[4], argList[9]]}
 
             if button == 'download':
                 self.currentData = eventButtons[button]
                 self.download()
             else:
-                return eventButtons[button]
-
+                if button:
+                    return eventButtons[button]
+        except TypeError:
+            sys.exit()
     # the download handler
     def download(self):
 
         layout = [[sg.Text('download')],
-                  [sg.ProgressBar(1, orientation='h', size=(
-                      20, 20), key='progress')],
-                  [sg.Cancel()]]
-        i = 0
+                [sg.ProgressBar(1, orientation='h', size=(
+                    20, 20), key='progress')],
+                [sg.Cancel()]]
+
         # create the form`
-        with subprocess.Popen(self.currentData, stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT) as run:
+        with  subprocess.Popen(self.currentData, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT) as run:
             window = sg.Window('Custom Progress Meter', layout)
             progress_bar = window['progress']
-            
             # loop that would normally do something useful
-            
+            i = 0
             for line0 in iter(run.stdout.readline, b''):
-                i+=1
+
                 # check to see if the cancel button was clicked and exit loop if clicked
                 event, values = window.read(timeout=0)
                 if event == 'Cancel' or event == None:
                     break
                     # update bar with loop value +1 so that bar eventually reaches the maximum
                 print('>>> ' + str(line0, 'utf-8'))
-                progress_bar.update_bar(i, 6)
+                progress_bar.update_bar(i+1, 10)
 
+                
                 # done with loop... need to destroy the window as it's still open
         window.close()
-
-
-UI().loadargs()
+        
+        
+            
+UI().test()
