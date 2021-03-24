@@ -4,7 +4,7 @@ if you want audio transcripts to train on podcast text run playlistV2:
 2. click the "confirm url" button
 3. click download
 
-if you wanna download the video as well just click add url again and click download.
+if you wanna download the sub-titles as well just click add url again and click download.
 if you mess up the link just click reset.
 if you want the subtitles do the same but click "auto gen subs"
 # Future updates
