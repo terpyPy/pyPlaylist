@@ -53,7 +53,7 @@ class UI():
             self.currentData = self.buttonFunction(self.event)
             if self.currentData:
                 print('current command: ', ' '.join(self.currentData))
-        elif self.event == WIN_CLOSED:
+        elif self.event == WIN_CLOSED or 'Cancel':
                 self.activeWindow.close()    
     # button functions
 
@@ -74,10 +74,8 @@ class UI():
             if button == 'download':
                 self.currentData = eventButtons[button]
                 self.download()
-        
             else:
-                if button:
-                    return eventButtons[button]
+                return eventButtons[button]
 
     # the download handler
     def download(self):
